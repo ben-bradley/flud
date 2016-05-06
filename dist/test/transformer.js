@@ -139,6 +139,24 @@ var readerTests = function readerTests(inputs) {
         }).catch(done);
       });
     }); // end append tests
+
+    describe('drop', function () {
+
+      it('should drop the first n chunks', function (done) {
+        var _inputs7 = inputs();
+
+        var objects = _inputs7.objects;
+        var flud = new _2.default(objects);
+        var counter = 0;
+
+        flud.drop(2).tap(function () {
+          return counter += 1;
+        }).done(function () {
+          counter.should.eql(objects.length - 2);
+          done();
+        });
+      });
+    }); // end drop tests
   }); // end transformer tests
 };
 

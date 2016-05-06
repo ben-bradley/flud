@@ -104,6 +104,26 @@ var transformer = function transformer() {
       });
 
       return this.pipe(stream);
+    },
+    drop: function drop() {
+      var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+      var objectMode = this.objectMode;
+      var dropped = 0;
+
+      var stream = new _stream.Transform({
+        objectMode: objectMode,
+        transform: function transform(chunk, enc, next) {
+          if (dropped < n) {
+            dropped += 1;
+            return next();
+          }
+
+          this.push(chunk);
+          next();
+        }
+      });
+
+      return this.pipe(stream);
     }
   };
 };

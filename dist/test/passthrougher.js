@@ -75,6 +75,45 @@ var passthrougherTests = function passthrougherTests(inputs) {
         });
       });
     }); // end last tests
+
+    describe('when', function () {
+
+      it('should call fn when condition is true', function (done) {
+        var _inputs4 = inputs();
+
+        var objects = _inputs4.objects;
+        var flud = new _2.default(objects);
+        var result = {};
+
+        flud.when(function (data) {
+          return data.a === '2';
+        }, function (data) {
+          return result = data;
+        }).stream.on('end', function () {
+          result.should.be.an.Object.with.property('a');
+          result.a.should.eql('2');
+          done();
+        });
+      });
+    }); // end when tests
+
+    describe('done', function () {
+
+      it('should call fn when stream is done', function (done) {
+        var _inputs5 = inputs();
+
+        var objects = _inputs5.objects;
+        var flud = new _2.default(objects);
+        var datas = [];
+
+        flud.done(function () {
+          datas.length.should.eql(objects.length);
+          done();
+        }).tap(function (data) {
+          return datas.push(data);
+        });
+      });
+    }); // end done tests
   }); // end passthrougher tests
 };
 

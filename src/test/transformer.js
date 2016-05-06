@@ -133,6 +133,24 @@ const readerTests = (inputs) => {
 
     }); // end append tests
 
+    describe('drop', () => {
+
+      it('should drop the first n chunks', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          counter = 0;
+
+        flud
+          .drop(2)
+          .tap(() => counter +=1)
+          .done(() => {
+            (counter).should.eql(objects.length - 2);
+            done();
+          });
+      });
+
+    }); // end drop tests
+
   }); // end transformer tests
 
 };

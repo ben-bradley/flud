@@ -92,6 +92,27 @@ const transformer = () => ({
     });
 
     return this.pipe(stream);
+  },
+
+  drop(n = 1) {
+    let { objectMode } = this,
+      dropped = 0;
+
+
+    let stream = new Transform({
+      objectMode,
+      transform(chunk, enc, next) {
+        if (dropped < n) {
+          dropped += 1;
+          return next();
+        }
+
+        this.push(chunk);
+        next();
+      }
+    });
+
+    return this.pipe(stream);
   }
 
 });

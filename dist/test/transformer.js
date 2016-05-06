@@ -177,6 +177,30 @@ var readerTests = function readerTests(inputs) {
         });
       });
     }); // end drop tests
+
+    describe('transform', function () {
+
+      it('should do stuff', function (done) {
+        var _inputs9 = inputs();
+
+        var objects = _inputs9.objects;
+        var flud = new _2.default(objects);
+        var datas = [];
+
+        flud.transform(function (data, enc, next) {
+          data.b = new Date();
+          next(null, data);
+        }, { objectMode: true }).tap(function (data) {
+          return datas.push(data);
+        }).done(function () {
+          datas.map(function (d) {
+            d.should.be.an.Object.with.property('b');
+            d.b.should.be.a.Date;
+          });
+          done();
+        });
+      });
+    }); // end drop tests
   }); // end transformer tests
 };
 

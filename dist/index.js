@@ -43,8 +43,16 @@ var piper = function piper() {
   };
 };
 
+var pusher = function pusher() {
+  return {
+    push: function push(data) {
+      this.stream.push(data);
+    }
+  };
+};
+
 var Flud = function Flud(stream) {
-  var flud = Object.assign({}, piper(), (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
+  var flud = Object.assign({}, piper(), pusher(), (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
 
   if (isStream(stream)) flud.stream(stream);else if (isArray(stream)) flud.objects(stream);else if (isString(stream)) flud.file(stream);
 

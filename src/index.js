@@ -20,9 +20,16 @@ const piper = () => ({
   }
 });
 
+const pusher = () => ({
+  push(data) {
+    this.stream.push(data);
+  }
+});
+
 const Flud = (stream) => {
   const flud = Object.assign({},
     piper(),
+    pusher(),
     reader(),
     transformer(),
     passthrougher(),

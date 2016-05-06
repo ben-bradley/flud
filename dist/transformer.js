@@ -20,18 +20,13 @@ var transformer = function transformer() {
       var objectMode = this.objectMode;
 
 
-      var stream = new _stream.Transform({
-        objectMode: objectMode,
-        transform: function transform(data, enc, next) {
-          var value = objectMode ? cb(data) : cb(data.toString());
+      return this.transform(function (data, enc, next) {
+        var value = objectMode ? cb(data) : cb(data.toString());
 
-          if (value) this.push(data);
+        if (value) return next(null, data);
 
-          next();
-        }
-      });
-
-      return this.pipe(stream);
+        next();
+      }, { objectMode: objectMode });
     },
     map: function map(cb) {
       (0, _makeSure2.default)(cb).is.a.Function;
@@ -39,16 +34,9 @@ var transformer = function transformer() {
       var objectMode = this.objectMode;
 
 
-      var stream = new _stream.Transform({
-        objectMode: objectMode,
-        transform: function transform(data, enc, next) {
-          if (objectMode) this.push(cb(data));else if (!objectMode) this.push(cb(data.toString()));
-
-          next();
-        }
-      });
-
-      return this.pipe(stream);
+      return this.transform(function (data, enc, next) {
+        if (objectMode) next(null, cb(data));else next(null, cb(data.toString()));
+      }, { objectMode: objectMode });
     },
     split: function split() {
       var delim = arguments.length <= 0 || arguments[0] === undefined ? /\r*\n/ : arguments[0];
@@ -85,45 +73,32 @@ var transformer = function transformer() {
       return this.pipe(stream);
     },
     append: function append() {
+      var _this3 = this;
+
       var data = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
       var objectMode = this.objectMode;
 
 
       if (objectMode && _makeSure2.default.isObject(data) === false) throw new Error('In objectMode, append() expects an object as an argument');
 
-      var stream = new _stream.Transform({
-        objectMode: objectMode,
-        transform: function transform(chunk, enc, next) {
-          this.push(chunk);
-          next();
-        },
-        flush: function flush(done) {
-          this.push(data);
-          done();
-        }
-      });
-
-      return this.pipe(stream);
+      return this.flush(function (done) {
+        _this3.push(data);
+        done();
+      }, { objectMode: objectMode });
     },
     drop: function drop() {
       var n = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
       var objectMode = this.objectMode;
       var dropped = 0;
 
-      var stream = new _stream.Transform({
-        objectMode: objectMode,
-        transform: function transform(chunk, enc, next) {
-          if (dropped < n) {
-            dropped += 1;
-            return next();
-          }
-
-          this.push(chunk);
-          next();
+      return this.transform(function (data, enc, next) {
+        if (dropped < n) {
+          dropped += 1;
+          return next();
         }
-      });
 
-      return this.pipe(stream);
+        next(null, data);
+      }, { objectMode: objectMode });
     },
     slice: function slice(start) {
       var n = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
@@ -131,20 +106,31 @@ var transformer = function transformer() {
       var dropped = 0;
       var counter = 0;
 
-      var stream = new _stream.Transform({
-        objectMode: objectMode,
-        transform: function transform(chunk, enc, next) {
-          counter += 1;
+      return this.transform(function (data, enc, next) {
+        counter += 1;
 
-          if (counter >= start && dropped < n) {
-            dropped += 1;
-            return next();
-          }
-
-          this.push(chunk);
-          next();
+        if (counter >= start && dropped < n) {
+          dropped += 1;
+          return next();
         }
-      });
+
+        next(null, data);
+      }, { objectMode: objectMode });
+    },
+    transform: function transform(_transform, options) {
+      var stream = new _stream.Transform(Object.assign({}, options, { transform: _transform }));
+
+      return this.pipe(stream);
+    },
+    flush: function flush(_flush, options) {
+      var stream = new _stream.Transform(Object.assign({}, {
+        transform: function transform(data, enc, next) {
+          next(null, data);
+        },
+        flush: function flush(done) {
+          _flush.call(this, done);
+        }
+      }, options));
 
       return this.pipe(stream);
     }

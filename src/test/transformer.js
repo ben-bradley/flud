@@ -171,6 +171,30 @@ const readerTests = (inputs) => {
 
     }); // end drop tests
 
+    describe('transform', () => {
+
+      it('should do stuff', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          datas = [];
+
+        flud
+          .transform((data, enc, next) => {
+            data.b = new Date();
+            next(null, data);
+          }, { objectMode: true })
+          .tap((data) => datas.push(data))
+          .done(() => {
+            datas.map((d) => {
+              (d).should.be.an.Object.with.property('b');
+              (d.b).should.be.a.Date;
+            });
+            done();
+          });
+      });
+
+    }); // end drop tests
+
   }); // end transformer tests
 
 };

@@ -157,6 +157,26 @@ var readerTests = function readerTests(inputs) {
         });
       });
     }); // end drop tests
+
+    describe('slice', function () {
+
+      it('should slice chunks from the stream', function (done) {
+        var _inputs8 = inputs();
+
+        var objects = _inputs8.objects;
+        var flud = new _2.default(objects);
+        var datas = [];
+
+        flud.slice(2, 2).tap(function (data) {
+          return datas.push(data);
+        }).done(function () {
+          datas.length.should.eql(objects.length - 2);
+          datas[0].a.should.eql(objects[0].a);
+          datas[1].a.should.eql(objects[3].a);
+          done();
+        });
+      });
+    }); // end drop tests
   }); // end transformer tests
 };
 

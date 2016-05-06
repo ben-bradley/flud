@@ -124,6 +124,29 @@ var transformer = function transformer() {
       });
 
       return this.pipe(stream);
+    },
+    slice: function slice(start) {
+      var n = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+      var objectMode = this.objectMode;
+      var dropped = 0;
+      var counter = 0;
+
+      var stream = new _stream.Transform({
+        objectMode: objectMode,
+        transform: function transform(chunk, enc, next) {
+          counter += 1;
+
+          if (counter >= start && dropped < n) {
+            dropped += 1;
+            return next();
+          }
+
+          this.push(chunk);
+          next();
+        }
+      });
+
+      return this.pipe(stream);
     }
   };
 };

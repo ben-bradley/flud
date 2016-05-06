@@ -151,6 +151,26 @@ const readerTests = (inputs) => {
 
     }); // end drop tests
 
+    describe('slice', () => {
+
+      it('should slice chunks from the stream', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          datas = [];
+
+        flud
+          .slice(2, 2)
+          .tap((data) => datas.push(data))
+          .done(() => {
+            (datas.length).should.eql(objects.length - 2);
+            (datas[0].a).should.eql(objects[0].a);
+            (datas[1].a).should.eql(objects[3].a);
+            done();
+          });
+      });
+
+    }); // end drop tests
+
   }); // end transformer tests
 
 };

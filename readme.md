@@ -459,6 +459,42 @@ all done!
  */
 ```
 
+### slice(start, number)
+
+The `.slice()` method will drop `number` data chunks beginning at `start` from the stream.
+
+#### Arguments
+
+- `start` = the position to start slicing from
+- `number` = the number of data chunks to drop, __Default__ = 1
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .tap((data) => console.log('before:', data))
+  .slice(2, 1)
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));
+
+/*
+before: { a: 1 }
+after: { a: 1 }
+before: { a: 2 }
+before: { a: 3 }
+after: { a: 3 }
+all done!
+ */
+```
+
 
 ## Promises
 

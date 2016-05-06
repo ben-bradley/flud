@@ -98,11 +98,33 @@ const transformer = () => ({
     let { objectMode } = this,
       dropped = 0;
 
-
     let stream = new Transform({
       objectMode,
       transform(chunk, enc, next) {
         if (dropped < n) {
+          dropped += 1;
+          return next();
+        }
+
+        this.push(chunk);
+        next();
+      }
+    });
+
+    return this.pipe(stream);
+  },
+
+  slice(start, n  = 1) {
+    let { objectMode } = this,
+      dropped = 0,
+      counter = 0;
+
+    let stream = new Transform({
+      objectMode,
+      transform(chunk, enc, next) {
+        counter += 1;
+
+        if (counter >= start && dropped < n) {
           dropped += 1;
           return next();
         }

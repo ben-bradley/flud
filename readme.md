@@ -1,4 +1,4 @@
-# Flud
+# Flud ![Build Status](https://secure.travis-ci.org/ben-bradley/flud.png?branch=master)](https://travis-ci.org/ben-bradley/flud)
 
 Flud is designed to be a simple and elegant way to work with streams.  Yes, there are a lot of really cool & slick modules that do that already and you can use them to solve specific problems.  Flud is more of a general toolkit than a specific tool.
 
@@ -303,6 +303,47 @@ all done!
 ## Transform
 
 Transformer methods invoke the Stream.Transform class to actively modify the stream in some way.
+
+### transform(callback[, options])
+
+The `.transform()` method accepts a callback that will transform the data chunks
+
+#### Arguments
+
+- `callback` = a function with the signature `(data, encoding, next)`
+- `options` = an object to specify the options for the `Transform()`
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const filepath = '/path/to/file';
+
+const flud = new Flud(filepath);
+
+flud
+  .split()
+  .tap((data) => console.log('before:', data))
+  .transform((data, enc, next) => {
+    data += ',z';
+    next(null, data);
+  })
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));
+
+/*
+before: line1
+line2
+line3
+after: line1
+after: line2
+after: line3
+all done!
+ */
+```
 
 ### split(delimiter)
 

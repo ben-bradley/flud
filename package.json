@@ -1,6 +1,6 @@
 {
   "name": "flud",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Streams toolkit",
   "main": "index.js",
   "dependencies": {

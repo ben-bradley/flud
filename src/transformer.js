@@ -10,19 +10,14 @@ const transformer = () => ({
 
     let { objectMode } = this;
 
-    let stream = new Transform({
-      objectMode,
-      transform(data, enc, next) {
-        let value = (objectMode) ? cb(data) : cb(data.toString());
+    return this.transform((data, enc, next) => {
+      let value = (objectMode) ? cb(data) : cb(data.toString());
 
-        if (value)
-          this.push(data);
+      if (value)
+        return next(null, data);
 
-        next();
-      }
-    });
-
-    return this.pipe(stream);
+      next();
+    }, { objectMode });
   },
 
   map(cb) {
@@ -30,19 +25,12 @@ const transformer = () => ({
 
     let { objectMode } = this;
 
-    let stream = new Transform({
-      objectMode,
-      transform(data, enc, next) {
-        if (objectMode)
-          this.push(cb(data));
-        else if (!objectMode)
-          this.push(cb(data.toString()));
-
-        next();
-      }
-    });
-
-    return this.pipe(stream);
+    return this.transform((data, enc, next) => {
+      if (objectMode)
+        next(null, cb(data));
+      else
+        next(null, cb(data.toString()));
+    }, { objectMode });
   },
 
   split(delim = /\r*\n/) {
@@ -79,17 +67,58 @@ const transformer = () => ({
     if (objectMode && makeSure.isObject(data) === false)
       throw new Error('In objectMode, append() expects an object as an argument');
 
-    let stream = new Transform({
-      objectMode,
-      transform(chunk, enc, next) {
-        this.push(chunk);
-        next();
+    return this.flush((done) => {
+      this.push(data);
+      done();
+    }, { objectMode });
+  },
+
+  drop(n = 1) {
+    let { objectMode } = this,
+      dropped = 0;
+
+    return this.transform((data, enc, next) => {
+      if (dropped < n) {
+        dropped += 1;
+        return next();
+      }
+
+      next(null, data);
+    }, { objectMode });
+  },
+
+  slice(start, n  = 1) {
+    let { objectMode } = this,
+      dropped = 0,
+      counter = 0;
+
+    return this.transform((data, enc, next) => {
+      counter += 1;
+
+      if (counter >= start && dropped < n) {
+        dropped += 1;
+        return next();
+      }
+
+      next(null, data)
+    }, { objectMode });
+  },
+
+  transform(transform, options) {
+    let stream = new Transform(Object.assign({}, options, { transform }));
+
+    return this.pipe(stream);
+  },
+
+  flush(flush, options) {
+    let stream = new Transform(Object.assign({}, {
+      transform(data, enc, next) {
+        next(null, data);
       },
       flush(done) {
-        this.push(data);
-        done();
+        flush.call(this, done);
       }
-    });
+    }, options));
 
     return this.pipe(stream);
   }

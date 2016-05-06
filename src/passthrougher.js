@@ -59,6 +59,32 @@ const passthrougher = () => ({
     });
 
     return this.pipe(stream);
+  },
+
+  when(condition, cb) {
+    let { objectMode } = this,
+      stream = new PassThrough({ objectMode });
+
+    makeSure(condition).is.a.Function;
+    makeSure(cb).is.a.Function;
+
+    stream.on('data', (data) => {
+      if (condition(data))
+        cb(data);
+    });
+
+    return this.pipe(stream);
+  },
+
+  done(cb) {
+    let { objectMode } = this,
+      stream = new PassThrough({ objectMode });
+
+    makeSure(cb).is.a.Function;
+
+    stream.on('finish', () => cb());
+
+    return this.pipe(stream);
   }
 
 });

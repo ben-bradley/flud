@@ -1,23 +1,13 @@
 'use strict';
 
 import Flud from './';
-import { createReadStream } from 'fs';
 
-const objects = [ { a: 'b' }, { a: 'c' }, { a: 'd' } ];
-const file = __dirname + '/../data/sample.csv';
-const stream = createReadStream(file);
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
 
-const flud = new Flud(stream);
+const flud = new Flud(objects);
 
 flud
-  .split()
-  // .map((data) => {
-  //   console.log('map', data);
-  //   data += '-foo';
-  //   return data;
-  // })
-  .tap(console.log)
-  .toArray()
-  .then((array) => {
-    console.log('toArray()', array);
-  });
+  .tap((data) => console.log('before:', data))
+  .drop(2)
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));

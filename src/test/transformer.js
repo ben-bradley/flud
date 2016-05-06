@@ -133,6 +133,68 @@ const readerTests = (inputs) => {
 
     }); // end append tests
 
+    describe('drop', () => {
+
+      it('should drop the first n chunks', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          counter = 0;
+
+        flud
+          .drop(2)
+          .tap(() => counter +=1)
+          .done(() => {
+            (counter).should.eql(objects.length - 2);
+            done();
+          });
+      });
+
+    }); // end drop tests
+
+    describe('slice', () => {
+
+      it('should slice chunks from the stream', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          datas = [];
+
+        flud
+          .slice(2, 2)
+          .tap((data) => datas.push(data))
+          .done(() => {
+            (datas.length).should.eql(objects.length - 2);
+            (datas[0].a).should.eql(objects[0].a);
+            (datas[1].a).should.eql(objects[3].a);
+            done();
+          });
+      });
+
+    }); // end drop tests
+
+    describe('transform', () => {
+
+      it('should do stuff', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          datas = [];
+
+        flud
+          .transform((data, enc, next) => {
+            data.b = new Date();
+            next(null, data);
+          }, { objectMode: true })
+          .tap((data) => datas.push(data))
+          .done(() => {
+            datas.map((d) => {
+              (d).should.be.an.Object.with.property('b');
+              (d.b).should.be.a.Date;
+            });
+            done();
+          });
+      });
+
+    }); // end drop tests
+
   }); // end transformer tests
 
 };

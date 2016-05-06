@@ -55,7 +55,7 @@ const passthrougherTests = (inputs) => {
 
         flud
           .last((data) => last = data)
-          .stream.on('end', () =>{
+          .stream.on('end', () => {
             (last).should.be.an.Object.with.property('a');
             (last.a).should.eql(objects[objects.length - 1].a);
             done();
@@ -63,6 +63,41 @@ const passthrougherTests = (inputs) => {
       });
 
     }); // end last tests
+
+    describe('when', () => {
+
+      it('should call fn when condition is true', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          result = {};
+
+        flud
+          .when((data) => data.a === '2', (data) => result = data)
+          .stream.on('end', () => {
+            (result).should.be.an.Object.with.property('a');
+            (result.a).should.eql('2');
+            done();
+          });
+      });
+
+    }); // end when tests
+
+    describe('done', () => {
+
+      it('should call fn when stream is done', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          datas = [];
+
+        flud
+          .done(() => {
+            (datas.length).should.eql(objects.length);
+            done();
+          })
+          .tap((data) => datas.push(data));
+      });
+
+    }); // end done tests
 
   }); // end passthrougher tests
 

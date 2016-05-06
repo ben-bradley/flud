@@ -7,9 +7,15 @@ Flud is designed to be a simple and elegant way to work with streams.  Yes, ther
 
 Readers will take in any of an existing stream, a file, or an array of objects and make them into a stream that can have Flud methods chained to it.  These methods can be called explicitly or when instantiating a new Flud().
 
-### stream
+### stream(stream)
 
-If you've already got a stream that you want to use Flud methods on, all you have to do is provide it to `Flud()` or call the `.stream()` method.
+If you've already got a `stream` that you want to use Flud methods on, all you have to do is provide it to `Flud()` or call the `.stream()` method.
+
+#### Arguments
+
+- `stream` = an existing NodeJS stream
+
+#### Example
 
 ```javascript
 'use strict';
@@ -24,7 +30,7 @@ const flud = new Flud(stream);
 flud
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
 ```javascript
@@ -41,12 +47,18 @@ flud
   .stream(stream)
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
-### file
+### file(filepath)
 
 A common pattern is to read a file into a stream and the `.file()` method makes that easy.
+
+#### Arguments
+
+- `filepath` = a `String` that is the path to the file to read
+
+#### Example
 
 ```javascript
 'use strict';
@@ -60,7 +72,7 @@ const flud = new Flud(filepath);
 flud
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
 ```javascript
@@ -76,12 +88,18 @@ flud
   .file(filepath)
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
-### objects
+### objects(array)
 
 Streams in `objectMode` are another common pattern that Flud works with.  To simplify this, Flud will accept an array of objects and convert it into a stream.
+
+#### Arguments
+
+- `array` = an array of `Object`s
+
+#### Example
 
 ```javascript
 'use strict';
@@ -95,7 +113,7 @@ const flud = new Flud(objects);
 flud
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
 ```javascript
@@ -111,7 +129,7 @@ flud
   .objects(objects)
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 ```
 
 
@@ -119,9 +137,15 @@ flud
 
 PassThroughs invoke the Stream.PassThrough class.
 
-### tap
+### tap(callback)
 
 The `.tap()` method will do just that, it taps into the stream and gives a place to view the contents of the stream without modifying them.
+
+#### Arguments
+
+- `callback` = a function with the signature `(data)`
+
+#### Example
 
 ```javascript
 'use strict';
@@ -136,7 +160,7 @@ flud
   .objects(objects)
   .tap((data) => console.log('data:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 
 /*
 data: { a: 1 }
@@ -146,16 +170,149 @@ all done!
  */
 ```
 
+### first(callback)
+
+The `.first()` method will call a function and supply the first data chunk as an argument.
+
+#### Arguments
+
+- `callback` = a function with the signature `(data)`
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .first((data) => console.log('data:', data))
+  .stream
+    .on('finish', () => console.log('all done!'));
+
+/*
+data: { a: 1 }
+all done!
+ */
+```
+
+### last(callback)
+
+#### Arguments
+
+- `callback` = a function with the signature `(data)`
+
+#### Example
+
+The `.last()` method will call a function and supply the last data chunk as an argument.
+
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .last((data) => console.log('data:', data))
+  .stream
+    .on('finish', () => console.log('all done!'));
+
+/*
+data: { a: 3 }
+all done!
+ */
+```
+
+### when(condition, callback)
+
+The `.when()` method will evaluate a condition and only then execute the function with the data chunk that caused the condition to be truthy.
+
+#### Arguments
+
+- `condition` = a function with the signature `(data)`, truthy returned values will trigger the `callback`
+- `callback` = a function with the signature `(data)`
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .when((data) => data.a !== 2, (data) => console.log('not 2:', data.a))
+  .stream
+    .on('finish', () => console.log('all done!'));
+
+/*
+not 2: 1
+not 2: 3
+all done!
+ */
+```
+
+### done(callback)
+
+The `.done()` method simply adds a listener to the stream `finish` event.
+
+#### Arguments
+
+- `callback` = a function with the signature `()`
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .done(() => console.log('done 1'))
+  .tap((data) => console.log('tap:', data))
+  .done(() => console.log('done 2'))
+  .stream
+    .on('finish', () => console.log('all done!'));
+
+/*
+tap: { a: 1 }
+tap: { a: 2 }
+tap: { a: 3 }
+done 1
+done 2
+all done!
+ */
+```
+
 
 ## Transform
 
 Transformer methods invoke the Stream.Transform class to actively modify the stream in some way.
 
-### split
+### split(delimiter)
 
 The `.split()` method accepts either a String or RegExp as an argument and will modify the stream so that each item resulting from the split becomes it's own chunk.
 
-For example, say you want to split a file by lines
+#### Arguments
+
+- `delimiter` = either a `String` or a `RegExp` value to use to split the data into smaller chunks. __Default__ = `/\r*\n/`
+
+#### Example
 
 ```bash
 #/path/to/file
@@ -179,7 +336,7 @@ flud
   .split()
   .tap((data) => console.log('after:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 
 /*
 before: line1
@@ -192,9 +349,15 @@ all done!
  */
 ```
 
-### map
+### map(callback)
 
 The `.map()` method acts like `Array.map()` via a simplified Stream.Transform.
+
+#### Arguments
+
+- `callback` = a function with signature `(data)`, returned values become data chunks for subsequent methods.
+
+#### Example
 
 ```javascript
 'use strict';
@@ -213,7 +376,7 @@ flud
   })
   .tap((data) => console.log('after:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 
 /*
 before: { a: 1 }
@@ -226,9 +389,15 @@ all done!
  */
 ```
 
-### filter
+### filter(callback)
 
 The `.map()` method acts like `Array.map()` via a simplified Stream.Transform.
+
+#### Arguments
+
+- `callback` = a function with signature `(data)`, returning a falsy value will omit the data chunk from subsequent methods
+
+#### Example
 
 ```javascript
 'use strict';
@@ -244,7 +413,7 @@ flud
   .filter((data) => data.a !== 2)
   .tap((data) => console.log('after:', data))
   .stream
-    .on('end', () => console.log('all done!'));
+    .on('finish', () => console.log('all done!'));
 
 /*
 before: { a: 1 }
@@ -256,12 +425,82 @@ all done!
  */
 ```
 
+### drop(number)
+
+The `.drop()` method will drop the first `n` data chunks that it sees from the stream.
+
+#### Arguments
+
+- `number` = the number of data chunks to drop
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .tap((data) => console.log('before:', data))
+  .drop(2)
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));
+
+/*
+before: { a: 1 }
+before: { a: 2 }
+before: { a: 3 }
+after: { a: 3 }
+all done!
+ */
+```
+
+### slice(start, number)
+
+The `.slice()` method will drop `number` data chunks beginning at `start` from the stream.
+
+#### Arguments
+
+- `start` = the position to start slicing from
+- `number` = the number of data chunks to drop, __Default__ = 1
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .tap((data) => console.log('before:', data))
+  .slice(2, 1)
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));
+
+/*
+before: { a: 1 }
+after: { a: 1 }
+before: { a: 2 }
+before: { a: 3 }
+after: { a: 3 }
+all done!
+ */
+```
+
 
 ## Promises
 
 Some times you may want to perform an operation on the results of the stream.  Since streams are asynchronous by their design, it's best to use Promises to manage the flow.
 
-### toArray
+### toArray()
 
 ```javascript
 'use strict';

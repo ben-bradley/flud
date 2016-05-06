@@ -16,15 +16,48 @@ var passthrougher = function passthrougher() {
   return {
     tap: function tap(cb) {
       var objectMode = this.objectMode;
-      var tap = new _stream.PassThrough({ objectMode: objectMode });
+      var stream = new _stream.PassThrough({ objectMode: objectMode });
 
       (0, _makeSure2.default)(cb).is.a.Function;
 
-      tap.on('data', function (data) {
+      stream.on('data', function (data) {
         if (objectMode) cb(data);else if (!objectMode) cb(data.toString());
       });
 
-      return this.pipe(tap);
+      return this.pipe(stream);
+    },
+    first: function first(cb) {
+      var objectMode = this.objectMode;
+      var stream = new _stream.PassThrough({ objectMode: objectMode });
+      var done = false;
+
+      (0, _makeSure2.default)(cb).is.a.Function;
+
+      stream.on('data', function (data) {
+        if (done) return;
+
+        done = true;
+        if (objectMode) cb(data);else if (!objectMode) cb(data.toString());
+      });
+
+      return this.pipe(stream);
+    },
+    last: function last(cb) {
+      var objectMode = this.objectMode;
+      var stream = new _stream.PassThrough({ objectMode: objectMode });
+      var last = {};
+
+      (0, _makeSure2.default)(cb).is.a.Function;
+
+      stream.on('data', function (data) {
+        return last = data;
+      });
+
+      stream.on('finish', function () {
+        if (objectMode) cb(last);else if (!objectMode) cb(last.toString());
+      });
+
+      return this.pipe(stream);
     }
   };
 };

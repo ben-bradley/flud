@@ -1,12 +1,15 @@
 'use strict';
 
 import { PassThrough } from 'stream';
+import makeSure from 'make-sure';
 
 const passthrougher = () => ({
 
   tap(cb) {
     let { objectMode } = this,
       tap = new PassThrough({ objectMode });
+
+    makeSure(cb).is.a.Function;
 
     tap.on('data', (data) => {
       if (objectMode)

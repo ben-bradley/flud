@@ -1,15 +1,19 @@
 'use strict';
 
-import { Readable, Transform, PassThrough, Duplex } from 'stream';
+import makeSure from 'make-sure';
+
 import reader from './reader';
 import transformer from './transformer';
 import passthrougher from './passthrougher';
 import returner from './returner';
 
-const streamTypes = [ Readable, Transform, PassThrough, Duplex ];
+const { isStream, isArray, isString } = makeSure;
 
 const piper = () => ({
   pipe(stream) {
+    if (isStream(stream) === false)
+      throw new Error('Cannot pipe a non-stream');
+
     this.stream = this.stream.pipe(stream);
 
     return this;
@@ -25,14 +29,11 @@ const Flud = (stream) => {
     returner()
   );
 
-  let isStream = streamTypes.reduce((isStream, type) =>
-    isStream || stream instanceof type, false);
-
-  if (isStream)
+  if (isStream(stream))
     flud.stream(stream);
-  else if (Array.isArray(stream))
+  else if (isArray(stream))
     flud.objects(stream);
-  else if (typeof stream === 'string')
+  else if (isString(stream))
     flud.file(stream);
 
   return flud;

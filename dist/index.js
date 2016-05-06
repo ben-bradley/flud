@@ -26,8 +26,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var streamTypes = [_stream.Readable, _stream.Transform, _stream.PassThrough, _stream.Duplex];
 
+var piper = function piper() {
+  return {
+    pipe: function pipe(stream) {
+      this.stream = this.stream.pipe(stream);
+
+      return this;
+    }
+  };
+};
+
 var Flud = function Flud(stream) {
-  var flud = Object.assign({}, (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
+  var flud = Object.assign({}, piper(), (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
 
   var isStream = streamTypes.reduce(function (isStream, type) {
     return isStream || stream instanceof type;

@@ -1,5 +1,6 @@
 'use strict';
 
+import makeSure from 'make-sure';
 import { Transform } from 'stream';
 
 const transformer = () => ({
@@ -7,7 +8,7 @@ const transformer = () => ({
   filter(cb) {
     let { objectMode } = this;
 
-    this.stream = this.stream.pipe(new Transform({
+    let stream = new Transform({
       objectMode,
       transform(data, enc, next) {
         let value = (objectMode) ? cb(data) : cb(data.toString());
@@ -17,15 +18,15 @@ const transformer = () => ({
 
         next();
       }
-    }));
+    });
 
-    return this;
+    return this.pipe(stream);
   },
 
   map(cb) {
     let { objectMode } = this;
 
-    this.stream = this.stream.pipe(new Transform({
+    let stream = new Transform({
       objectMode,
       transform(data, enc, next) {
         if (objectMode)
@@ -35,9 +36,9 @@ const transformer = () => ({
 
         next();
       }
-    }));
+    });
 
-    return this;
+    return this.pipe(stream);
   },
 
   split(delim = /\r*\n/) {
@@ -48,7 +49,7 @@ const transformer = () => ({
 
     let buf = '';
 
-    this.stream = this.stream.pipe(new Transform({
+    let stream = new Transform({
       transform(data, enc, next) {
         let parts = (buf + data.toString()).split(delim);
 
@@ -60,10 +61,29 @@ const transformer = () => ({
         buf.toString().split(delim).map((part) => this.push(part.toString()));
         done();
       }
-    }));
+    });
 
-    return this;
+    return this.pipe(stream);
+  },
+
+  append(data = '') {
+    let { objectMode } = this;
+
+    let stream = new Transform({
+      objectMode,
+      transform(chunk, enc, next) {
+        this.push(chunk);
+        next();
+      },
+      flush(done) {
+        this.push(data);
+        done();
+      }
+    });
+
+    return this.pipe(stream);
   }
+
 });
 
 export default transformer;

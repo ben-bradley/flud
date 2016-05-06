@@ -4,7 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _makeSure = require('make-sure');
+
+var _makeSure2 = _interopRequireDefault(_makeSure);
+
 var _stream = require('stream');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var transformer = function transformer() {
   return {
@@ -12,7 +18,7 @@ var transformer = function transformer() {
       var objectMode = this.objectMode;
 
 
-      this.stream = this.stream.pipe(new _stream.Transform({
+      var stream = new _stream.Transform({
         objectMode: objectMode,
         transform: function transform(data, enc, next) {
           var value = objectMode ? cb(data) : cb(data.toString());
@@ -21,24 +27,24 @@ var transformer = function transformer() {
 
           next();
         }
-      }));
+      });
 
-      return this;
+      return this.pipe(stream);
     },
     map: function map(cb) {
       var objectMode = this.objectMode;
 
 
-      this.stream = this.stream.pipe(new _stream.Transform({
+      var stream = new _stream.Transform({
         objectMode: objectMode,
         transform: function transform(data, enc, next) {
           if (objectMode) this.push(cb(data));else if (!objectMode) this.push(cb(data.toString()));
 
           next();
         }
-      }));
+      });
 
-      return this;
+      return this.pipe(stream);
     },
     split: function split() {
       var delim = arguments.length <= 0 || arguments[0] === undefined ? /\r*\n/ : arguments[0];
@@ -50,7 +56,7 @@ var transformer = function transformer() {
 
       var buf = '';
 
-      this.stream = this.stream.pipe(new _stream.Transform({
+      var stream = new _stream.Transform({
         transform: function transform(data, enc, next) {
           var _this = this;
 
@@ -70,9 +76,28 @@ var transformer = function transformer() {
           });
           done();
         }
-      }));
+      });
 
-      return this;
+      return this.pipe(stream);
+    },
+    append: function append() {
+      var data = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+      var objectMode = this.objectMode;
+
+
+      var stream = new _stream.Transform({
+        objectMode: objectMode,
+        transform: function transform(chunk, enc, next) {
+          this.push(chunk);
+          next();
+        },
+        flush: function flush(done) {
+          this.push(data);
+          done();
+        }
+      });
+
+      return this.pipe(stream);
     }
   };
 };

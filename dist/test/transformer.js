@@ -38,7 +38,7 @@ var readerTests = function readerTests(inputs) {
           done();
         });
       });
-    });
+    }); // end split tests
 
     describe('map', function () {
 
@@ -76,7 +76,7 @@ var readerTests = function readerTests(inputs) {
           return done();
         });
       });
-    });
+    }); // end map tests
 
     describe('filter', function () {
 
@@ -119,7 +119,26 @@ var readerTests = function readerTests(inputs) {
           done();
         });
       });
-    });
+    }); // end filter tests
+
+    describe('append', function () {
+
+      it('should create one more data event', function (done) {
+        var _inputs6 = inputs();
+
+        var objects = _inputs6.objects;
+        var flud = new _2.default(objects);
+
+        flud.append({ a: 0 }).toArray().then(function (appended) {
+          var len = appended.length;
+
+          len.should.eql(objects.length + 1);
+          appended[len - 1].should.be.an.Object.with.property('a');
+          appended[len - 1].a.should.eql(0);
+          done();
+        }).catch(done);
+      });
+    }); // end append tests
   }); // end transformer tests
 };
 

@@ -16,9 +16,7 @@ var passthrougher = function passthrougher() {
         if (objectMode) cb(data);else if (!objectMode) cb(data.toString());
       });
 
-      this.stream.pipe(tap);
-
-      return this;
+      return this.pipe(tap);
     }
   };
 };

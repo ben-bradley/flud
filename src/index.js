@@ -8,8 +8,17 @@ import returner from './returner';
 
 const streamTypes = [ Readable, Transform, PassThrough, Duplex ];
 
+const piper = () => ({
+  pipe(stream) {
+    this.stream = this.stream.pipe(stream);
+
+    return this;
+  }
+});
+
 const Flud = (stream) => {
   const flud = Object.assign({},
+    piper(),
     reader(),
     transformer(),
     passthrougher(),

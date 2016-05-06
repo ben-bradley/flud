@@ -15,9 +15,7 @@ const passthrougher = () => ({
         cb(data.toString());
     });
 
-    this.stream.pipe(tap);
-
-    return this;
+    return this.pipe(tap);
   }
 
 });

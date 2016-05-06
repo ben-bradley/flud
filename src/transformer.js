@@ -6,6 +6,8 @@ import { Transform } from 'stream';
 const transformer = () => ({
 
   filter(cb) {
+    makeSure(cb).is.a.Function;
+
     let { objectMode } = this;
 
     let stream = new Transform({
@@ -24,6 +26,8 @@ const transformer = () => ({
   },
 
   map(cb) {
+    makeSure(cb).is.a.Function;
+
     let { objectMode } = this;
 
     let stream = new Transform({
@@ -42,10 +46,13 @@ const transformer = () => ({
   },
 
   split(delim = /\r*\n/) {
-    if (this.objectMode) {
-      console.log('Warning: can\'t split an objectMode stream');
-      return this;
-    };
+    let isString = makeSure.isString(delim),
+      isRegExp = makeSure.isRegExp(delim);
+
+    if (!isString && !isRegExp)
+      throw new Error('The split() method expects a string or regular expression');
+    else if (this.objectMode)
+      throw new Error('the split() method can\'t be called on an objectMode stream');
 
     let buf = '';
 
@@ -68,6 +75,9 @@ const transformer = () => ({
 
   append(data = '') {
     let { objectMode } = this;
+
+    if (objectMode && makeSure.isObject(data) === false)
+      throw new Error('In objectMode, append() expects an object as an argument');
 
     let stream = new Transform({
       objectMode,

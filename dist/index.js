@@ -4,7 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _stream = require('stream');
+var _makeSure = require('make-sure');
+
+var _makeSure2 = _interopRequireDefault(_makeSure);
 
 var _reader = require('./reader');
 
@@ -24,11 +26,16 @@ var _returner2 = _interopRequireDefault(_returner);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var streamTypes = [_stream.Readable, _stream.Transform, _stream.PassThrough, _stream.Duplex];
+var isStream = _makeSure2.default.isStream;
+var isArray = _makeSure2.default.isArray;
+var isString = _makeSure2.default.isString;
+
 
 var piper = function piper() {
   return {
     pipe: function pipe(stream) {
+      if (isStream(stream) === false) throw new Error('Cannot pipe a non-stream');
+
       this.stream = this.stream.pipe(stream);
 
       return this;
@@ -39,11 +46,7 @@ var piper = function piper() {
 var Flud = function Flud(stream) {
   var flud = Object.assign({}, piper(), (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
 
-  var isStream = streamTypes.reduce(function (isStream, type) {
-    return isStream || stream instanceof type;
-  }, false);
-
-  if (isStream) flud.stream(stream);else if (Array.isArray(stream)) flud.objects(stream);else if (typeof stream === 'string') flud.file(stream);
+  if (isStream(stream)) flud.stream(stream);else if (isArray(stream)) flud.objects(stream);else if (isString(stream)) flud.file(stream);
 
   return flud;
 };

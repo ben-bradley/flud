@@ -15,6 +15,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var transformer = function transformer() {
   return {
     filter: function filter(cb) {
+      (0, _makeSure2.default)(cb).is.a.Function;
+
       var objectMode = this.objectMode;
 
 
@@ -32,6 +34,8 @@ var transformer = function transformer() {
       return this.pipe(stream);
     },
     map: function map(cb) {
+      (0, _makeSure2.default)(cb).is.a.Function;
+
       var objectMode = this.objectMode;
 
 
@@ -49,10 +53,10 @@ var transformer = function transformer() {
     split: function split() {
       var delim = arguments.length <= 0 || arguments[0] === undefined ? /\r*\n/ : arguments[0];
 
-      if (this.objectMode) {
-        console.log('Warning: can\'t split an objectMode stream');
-        return this;
-      };
+      var isString = _makeSure2.default.isString(delim),
+          isRegExp = _makeSure2.default.isRegExp(delim);
+
+      if (!isString && !isRegExp) throw new Error('The split() method expects a string or regular expression');else if (this.objectMode) throw new Error('the split() method can\'t be called on an objectMode stream');
 
       var buf = '';
 
@@ -84,6 +88,8 @@ var transformer = function transformer() {
       var data = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
       var objectMode = this.objectMode;
 
+
+      if (objectMode && _makeSure2.default.isObject(data) === false) throw new Error('In objectMode, append() expects an object as an argument');
 
       var stream = new _stream.Transform({
         objectMode: objectMode,

@@ -1,4 +1,4 @@
-# Flud ![Build Status](https://secure.travis-ci.org/ben-bradley/flud.png?branch=master)](https://travis-ci.org/ben-bradley/flud)
+# Flud [![Build Status](https://secure.travis-ci.org/ben-bradley/flud.png?branch=master)](https://travis-ci.org/ben-bradley/flud)
 
 Flud is designed to be a simple and elegant way to work with streams.  Yes, there are a lot of really cool & slick modules that do that already and you can use them to solve specific problems.  Flud is more of a general toolkit than a specific tool.
 

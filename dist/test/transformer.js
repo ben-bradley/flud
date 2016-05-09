@@ -180,7 +180,7 @@ var readerTests = function readerTests(inputs) {
 
     describe('transform', function () {
 
-      it('should do stuff', function (done) {
+      it('should provide a hook for the _transform method', function (done) {
         var _inputs9 = inputs();
 
         var objects = _inputs9.objects;
@@ -200,7 +200,52 @@ var readerTests = function readerTests(inputs) {
           done();
         });
       });
-    }); // end drop tests
+    }); // end transform tests
+
+    describe('buffer', function () {
+
+      it('should buffer object data until flush', function (done) {
+        var _inputs10 = inputs();
+
+        var objects = _inputs10.objects;
+        var flud = new _2.default(objects);
+        var before = [];
+        var after = [];
+
+        flud.tap(function (data) {
+          return before.push(data);
+        }).join().tap(function (data) {
+          return after.push(data);
+        }).done(function () {
+          before.length.should.eql(objects.length);
+          after.length.should.eql(1);
+          done();
+        });
+      });
+
+      it('should buffer string data until flush', function (done) {
+        var _inputs11 = inputs();
+
+        var filepath = _inputs11.filepath;
+        var flud = new _2.default(filepath);
+        var orig = '';
+        var before = [];
+        var after = [];
+
+        flud.tap(function (data) {
+          return orig = data.replace(/\n$/, '');
+        }).split().tap(function (data) {
+          return before.push(data);
+        }).join('\n').tap(function (data) {
+          return after.push(data);
+        }).done(function () {
+          before.length.should.eql(4);
+          after.length.should.eql(1);
+          after[0].should.eql(orig);
+          done();
+        });
+      });
+    }); // end transform tests
   }); // end transformer tests
 };
 

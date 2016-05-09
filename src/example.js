@@ -8,6 +8,6 @@ const flud = new Flud(objects);
 
 flud
   .tap((data) => console.log('before:', data))
-  .drop(2)
+  .join()
   .tap((data) => console.log('after:', data))
   .done(() => console.log('all done!'));

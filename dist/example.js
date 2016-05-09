@@ -12,7 +12,7 @@ var flud = new _2.default(objects);
 
 flud.tap(function (data) {
   return console.log('before:', data);
-}).slice(2, 1).tap(function (data) {
+}).join().tap(function (data) {
   return console.log('after:', data);
 }).done(function () {
   return console.log('all done!');

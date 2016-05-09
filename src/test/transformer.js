@@ -173,7 +173,7 @@ const readerTests = (inputs) => {
 
     describe('transform', () => {
 
-      it('should do stuff', (done) => {
+      it('should provide a hook for the _transform method', (done) => {
         let { objects } = inputs(),
           flud = new Flud(objects),
           datas = [];
@@ -193,7 +193,49 @@ const readerTests = (inputs) => {
           });
       });
 
-    }); // end drop tests
+    }); // end transform tests
+
+    describe('buffer', () => {
+
+      it('should buffer object data until flush', (done) => {
+        let { objects } = inputs(),
+          flud = new Flud(objects),
+          before = [],
+          after = [];
+
+        flud
+          .tap((data) => before.push(data))
+          .join()
+          .tap((data) => after.push(data))
+          .done(() => {
+            (before.length).should.eql(objects.length);
+            (after.length).should.eql(1);
+            done();
+          });
+      });
+
+      it('should buffer string data until flush', (done) => {
+        let { filepath } = inputs(),
+          flud = new Flud(filepath),
+          orig = '',
+          before = [],
+          after = [];
+
+        flud
+          .tap((data) => orig = data.replace(/\n$/, ''))
+          .split()
+          .tap((data) => before.push(data))
+          .join('\n')
+          .tap((data) => after.push(data))
+          .done(() => {
+            (before.length).should.eql(4);
+            (after.length).should.eql(1);
+            (after[0]).should.eql(orig);
+            done();
+          });
+      });
+
+    }); // end transform tests
 
   }); // end transformer tests
 

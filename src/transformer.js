@@ -121,6 +121,27 @@ const transformer = () => ({
     }, options));
 
     return this.pipe(stream);
+  },
+
+  join(delim = ',') {
+    let { objectMode } = this,
+      buffer = [];
+
+    let stream = new Transform({
+      objectMode,
+      transform(data, enc, next) {
+        buffer.push(data);
+        next();
+      },
+      flush(done) {
+        let data = (objectMode) ? buffer : buffer.join(delim);
+
+        this.push(data);
+        done();
+      }
+    });
+
+    return this.pipe(stream);
   }
 
 });

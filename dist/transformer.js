@@ -133,6 +133,27 @@ var transformer = function transformer() {
       }, options));
 
       return this.pipe(stream);
+    },
+    join: function join() {
+      var delim = arguments.length <= 0 || arguments[0] === undefined ? ',' : arguments[0];
+      var objectMode = this.objectMode;
+      var buffer = [];
+
+      var stream = new _stream.Transform({
+        objectMode: objectMode,
+        transform: function transform(data, enc, next) {
+          buffer.push(data);
+          next();
+        },
+        flush: function flush(done) {
+          var data = objectMode ? buffer : buffer.join(delim);
+
+          this.push(data);
+          done();
+        }
+      });
+
+      return this.pipe(stream);
     }
   };
 };

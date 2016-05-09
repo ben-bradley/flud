@@ -7,7 +7,7 @@ Flud is designed to be a simple and elegant way to work with streams.  Yes, ther
 
 Readers will take in any of an existing stream, a file, or an array of objects and make them into a stream that can have Flud methods chained to it.  These methods can be called explicitly or when instantiating a new Flud().
 
-### stream(stream)
+### `stream(stream)`
 
 If you've already got a `stream` that you want to use Flud methods on, all you have to do is provide it to `Flud()` or call the `.stream()` method.
 
@@ -50,7 +50,7 @@ flud
     .on('finish', () => console.log('all done!'));
 ```
 
-### file(filepath)
+### `file(filepath)`
 
 A common pattern is to read a file into a stream and the `.file()` method makes that easy.
 
@@ -91,7 +91,7 @@ flud
     .on('finish', () => console.log('all done!'));
 ```
 
-### objects(array)
+### `objects(array)`
 
 Streams in `objectMode` are another common pattern that Flud works with.  To simplify this, Flud will accept an array of objects and convert it into a stream.
 
@@ -137,7 +137,7 @@ flud
 
 PassThroughs invoke the Stream.PassThrough class.
 
-### tap(callback)
+### `tap(callback)`
 
 The `.tap()` method will do just that, it taps into the stream and gives a place to view the contents of the stream without modifying them.
 
@@ -170,7 +170,7 @@ all done!
  */
 ```
 
-### first(callback)
+### `first(callback)`
 
 The `.first()` method will call a function and supply the first data chunk as an argument.
 
@@ -200,7 +200,7 @@ all done!
  */
 ```
 
-### last(callback)
+### `last(callback)`
 
 #### Arguments
 
@@ -231,7 +231,7 @@ all done!
  */
 ```
 
-### when(condition, callback)
+### `when(condition, callback)`
 
 The `.when()` method will evaluate a condition and only then execute the function with the data chunk that caused the condition to be truthy.
 
@@ -263,7 +263,7 @@ all done!
  */
 ```
 
-### done(callback)
+### `done(callback)`
 
 The `.done()` method simply adds a listener to the stream `finish` event.
 
@@ -304,7 +304,7 @@ all done!
 
 Transformer methods invoke the Stream.Transform class to actively modify the stream in some way.
 
-### transform(callback[, options])
+### `transform(callback[, options])`
 
 The `.transform()` method accepts a callback that will transform the data chunks
 
@@ -345,7 +345,7 @@ all done!
  */
 ```
 
-### split(delimiter)
+### `split(delimiter)`
 
 The `.split()` method accepts either a String or RegExp as an argument and will modify the stream so that each item resulting from the split becomes it's own chunk.
 
@@ -390,7 +390,7 @@ all done!
  */
 ```
 
-### map(callback)
+### `map(callback)`
 
 The `.map()` method acts like `Array.map()` via a simplified Stream.Transform.
 
@@ -430,7 +430,7 @@ all done!
  */
 ```
 
-### filter(callback)
+### `filter(callback)`
 
 The `.map()` method acts like `Array.map()` via a simplified Stream.Transform.
 
@@ -466,7 +466,7 @@ all done!
  */
 ```
 
-### drop(number)
+### `drop(number)`
 
 The `.drop()` method will drop the first `n` data chunks that it sees from the stream.
 
@@ -500,7 +500,7 @@ all done!
  */
 ```
 
-### slice(start, number)
+### `slice(start, number)`
 
 The `.slice()` method will drop `number` data chunks beginning at `start` from the stream.
 
@@ -536,12 +536,46 @@ all done!
  */
 ```
 
+### `join(delimiter)`
+
+The `.join()` method will collect all the data chunks and emit a single data chunk.  If the stream is not in `objectMode`, the chunks are joined using the delimiter.  If the stream is in `objectMode` the objects are pushed into an array which becomes the emitted data chunk.
+
+#### Arguments
+
+- `delimiter` = a `String` value to use to join the data chunks into a single chunk. __Default__ = `','`, (__ignored in `objectMode`__)
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objects = [{ a: 1 }, { a: 2 }, { a: 3 }];
+
+const flud = new Flud(objects);
+
+flud
+  .tap((data) => console.log('before:', data))
+  .join()
+  .tap((data) => console.log('after:', data))
+  .done(() => console.log('all done!'));
+
+/*
+before: { a: 1 }
+before: { a: 2 }
+before: { a: 3 }
+after: [ { a: 1 }, { a: 2 }, { a: 3 } ]
+all done!
+ */
+```
+
 
 ## Promises
 
 Some times you may want to perform an operation on the results of the stream.  Since streams are asynchronous by their design, it's best to use Promises to manage the flow.
 
-### toArray()
+### `toArray()`
 
 ```javascript
 'use strict';
@@ -564,3 +598,8 @@ flud
 all done!
  */
 ```
+
+## Versions
+
+- 1.1.0 - added `.join()`, cleaned up readme.md
+- 1.0.0 - Initial release

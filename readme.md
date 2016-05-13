@@ -601,6 +601,7 @@ all done!
 
 ## Versions
 
+- 1.2.1 - `npm publish` on master
 - 1.2.0 - `new Flud(objectModeStream)` now works
 - 1.1.0 - added `.join()`, cleaned up readme.md
 - 1.0.0 - Initial release

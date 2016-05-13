@@ -10,6 +10,10 @@ const reader = () => ({
     makeSure(stream).is.a.Stream;
 
     this.stream = stream;
+
+    if (stream._readableState && stream._readableState.objectMode)
+      this.objectMode = true;
+    
     return this;
   },
 

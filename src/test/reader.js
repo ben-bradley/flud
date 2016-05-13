@@ -14,6 +14,19 @@ const readerTests = (inputs) => {
       flud.tap(() => {}).stream.on('end', () => done());
     });
 
+    it('objectMode stream', (done) => {
+      let { objStream, objects } = inputs(),
+        flud = new Flud(objStream()),
+        objs = [];
+
+      flud
+        .tap((obj) => objs.push(obj))
+        .stream.on('end', () => {
+          (objs).should.have.length(objects.length);
+          done();
+        });
+    });
+
     it('objects', (done) => {
       let { objects } = inputs(),
         flud = new Flud(objects);

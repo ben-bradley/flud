@@ -22,6 +22,9 @@ var reader = function reader() {
       (0, _makeSure2.default)(_stream).is.a.Stream;
 
       this.stream = _stream;
+
+      if (_stream._readableState && _stream._readableState.objectMode) this.objectMode = true;
+
       return this;
     },
     file: function file(filepath) {

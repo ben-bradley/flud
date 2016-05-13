@@ -29,10 +29,26 @@ var readerTests = function readerTests(inputs) {
       });
     });
 
-    it('objects', function (done) {
+    it('objectMode stream', function (done) {
       var _inputs2 = inputs();
 
+      var objStream = _inputs2.objStream;
       var objects = _inputs2.objects;
+      var flud = new _2.default(objStream());
+      var objs = [];
+
+      flud.tap(function (obj) {
+        return objs.push(obj);
+      }).stream.on('end', function () {
+        objs.should.have.length(objects.length);
+        done();
+      });
+    });
+
+    it('objects', function (done) {
+      var _inputs3 = inputs();
+
+      var objects = _inputs3.objects;
       var flud = new _2.default(objects);
 
       flud.tap(function () {}).stream.on('end', function () {
@@ -41,9 +57,9 @@ var readerTests = function readerTests(inputs) {
     });
 
     it('filepath', function (done) {
-      var _inputs3 = inputs();
+      var _inputs4 = inputs();
 
-      var filepath = _inputs3.filepath;
+      var filepath = _inputs4.filepath;
       var flud = new _2.default(filepath);
 
       flud.tap(function () {}).stream.on('end', function () {

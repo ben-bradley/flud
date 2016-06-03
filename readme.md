@@ -599,6 +599,12 @@ all done!
  */
 ```
 
+
+## ToDo
+
+- Add a `parallel()` limiter
+
+
 ## Versions
 
 - 1.2.1 - `npm publish` on master

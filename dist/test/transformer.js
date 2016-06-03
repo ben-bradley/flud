@@ -52,15 +52,13 @@ var readerTests = function readerTests(inputs) {
 
         flud.tap(function (data) {
           return before.push(data);
-        }).parallel(4, function (data, next) {
-          setTimeout(function () {
-            console.log('test next', data);
-            next(null, data);
-          }, 25);
+        }).parallel(20, function (data, next) {
+          return setTimeout(function () {
+            return next(null, data);
+          }, 500);
         }).tap(function (data) {
           return after.push(data);
-        }).stream.on('end', function () {
-          console.log('test stream.end!');
+        }).done(function () {
           before.length.should.eql(after.length);
           done();
         });

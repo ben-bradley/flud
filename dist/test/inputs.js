@@ -16,7 +16,7 @@ var filepath = __dirname + '/../../data/sample.csv';
 
 var objects = [{ a: '1' }, { a: '2' }, { a: '3' }, { a: '4' }];
 
-var manyObjects = Array.from(new Array(100), function (v, i) {
+var manyObjects = Array.from(new Array(50), function (v, i) {
   return { a: i };
 });
 

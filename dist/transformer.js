@@ -124,8 +124,7 @@ var transformer = function transformer() {
     },
     parallel: function parallel(n, cb) {
       var active = 0;
-      var paused = false;
-      var allDone = false;
+      var done = false;
       var stream = this.stream;
       var objectMode = this.objectMode;
 
@@ -134,45 +133,33 @@ var transformer = function transformer() {
       (0, _makeSure2.default)(cb).is.a.Function;
 
       var parallel = new _stream.Transform({
+        objectMode: objectMode,
         transform: function transform(data, enc, next) {
+          active += 1;
+
+          if (active >= n && !stream.isPaused()) stream.pause();
+
+          cb(data, function (err, data) {
+            if (err) throw err;
+
+            active -= 1;
+
+            if (active < n && stream.isPaused()) stream.resume();
+
+            parallel.push(data);
+
+            if (done && active === 0) parallel.push(null);
+          });
+
           next();
-        },
-
-        objectMode: objectMode
-      });
-
-      stream.on('data', function (data) {
-        active += 1;
-        console.log('stream.data!', active, data);
-
-        if (active >= n && !paused) {
-          paused = true;
-          stream.pause();
-          console.log('stream paused!', active, data);
         }
-
-        cb(data, function (err, data) {
-          active -= 1;
-          console.log('parallel tick', active, data);
-
-          if (active < n && paused) {
-            paused = false;
-            stream.resume();
-            console.log('stream resumed!', active, data);
-          }
-
-          parallel.push(data);
-
-          if (active === 0 && allDone) parallel.push(null);
-        });
       });
 
       stream.on('end', function () {
-        return allDone = true;
+        return done = true;
       });
 
-      this.stream = parallel;
-      return this;
+      return this.pipe(parallel, { end: false });
     },
     flush: function flush(_flush, options) {
       var stream = new _stream.Transform(Object.assign({}, {

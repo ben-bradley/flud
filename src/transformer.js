@@ -112,49 +112,42 @@ const transformer = () => ({
 
   parallel(n, cb) {
     let active = 0,
-      paused = false,
-      allDone = false,
+      done = false,
       { stream, objectMode } = this;
 
     makeSure(n).is.a.Number;
     makeSure(cb).is.a.Function;
 
     let parallel = new Transform({
-      transform(data, enc, next) { next(); },
-      objectMode
-    });
+      objectMode,
+      transform(data, enc, next) {
+        active += 1;
 
-    stream.on('data', (data) => {
-      active += 1;
-      console.log('stream.data!', active, data);
+        if (active >= n && !stream.isPaused())
+          stream.pause();
 
-      if (active >= n && !paused) {
-        paused = true;
-        stream.pause();
-        console.log('stream paused!', active, data);
+        cb(data, (err, data) => {
+          if (err)
+            throw err;
+
+          active -= 1;
+
+          if (active < n && stream.isPaused())
+            stream.resume();
+
+          parallel.push(data);
+
+          if (done && active === 0)
+            parallel.push(null);
+        });
+
+        next();
       }
-
-      cb(data, (err, data) => {
-        active -= 1;
-        console.log('parallel tick', active, data);
-
-        if (active < n && paused) {
-          paused = false;
-          stream.resume();
-          console.log('stream resumed!', active, data);
-        }
-
-        parallel.push(data);
-
-        if (active === 0 && allDone)
-          parallel.push(null);
-      });
     });
 
-    stream.on('end', () => allDone = true);
+    stream.on('end', () => done = true);
 
-    this.stream = parallel;
-    return this;
+    return this.pipe(parallel, { end: false });
   },
 
   flush(flush, options) {

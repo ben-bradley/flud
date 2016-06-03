@@ -38,15 +38,9 @@ const readerTests = (inputs) => {
 
         flud
           .tap((data) => before.push(data))
-          .parallel(4, (data, next) => {
-            setTimeout(() => {
-              console.log('test next', data);
-              next(null, data);
-            }, 25);
-          })
+          .parallel(20, (data, next) => setTimeout(() => next(null, data), 500))
           .tap((data) => after.push(data))
-          .stream.on('end', () => {
-            console.log('test stream.end!');
+          .done(() => {
             (before.length).should.eql(after.length);
             done();
           });

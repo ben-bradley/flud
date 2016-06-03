@@ -7,7 +7,7 @@ const filepath = __dirname + '/../../data/sample.csv';
 
 const objects = [ { a: '1' }, { a: '2' }, { a: '3' }, { a: '4' } ];
 
-const manyObjects = Array.from(new Array(100), (v, i) => ({ a: i }));
+const manyObjects = Array.from(new Array(50), (v, i) => ({ a: i }));
 
 const objStream = new Readable({
   objectMode: true,

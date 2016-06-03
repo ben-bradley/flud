@@ -73,16 +73,13 @@ var passthrougher = function passthrougher() {
       return this.pipe(stream);
     },
     done: function done(cb) {
-      var objectMode = this.objectMode;
-      var stream = new _stream.PassThrough({ objectMode: objectMode });
-
       (0, _makeSure2.default)(cb).is.a.Function;
 
-      stream.on('finish', function () {
+      this.stream.on('end', function () {
         return cb();
       });
 
-      return this.pipe(stream);
+      return this;
     }
   };
 };

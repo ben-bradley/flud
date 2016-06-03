@@ -122,6 +122,58 @@ var transformer = function transformer() {
 
       return this.pipe(stream);
     },
+    parallel: function parallel(n, cb) {
+      var active = 0;
+      var paused = false;
+      var allDone = false;
+      var stream = this.stream;
+      var objectMode = this.objectMode;
+
+
+      (0, _makeSure2.default)(n).is.a.Number;
+      (0, _makeSure2.default)(cb).is.a.Function;
+
+      var parallel = new _stream.Transform({
+        transform: function transform(data, enc, next) {
+          next();
+        },
+
+        objectMode: objectMode
+      });
+
+      stream.on('data', function (data) {
+        active += 1;
+        console.log('stream.data!', active, data);
+
+        if (active >= n && !paused) {
+          paused = true;
+          stream.pause();
+          console.log('stream paused!', active, data);
+        }
+
+        cb(data, function (err, data) {
+          active -= 1;
+          console.log('parallel tick', active, data);
+
+          if (active < n && paused) {
+            paused = false;
+            stream.resume();
+            console.log('stream resumed!', active, data);
+          }
+
+          parallel.push(data);
+
+          if (active === 0 && allDone) parallel.push(null);
+        });
+      });
+
+      stream.on('end', function () {
+        return allDone = true;
+      });
+
+      this.stream = parallel;
+      return this;
+    },
     flush: function flush(_flush, options) {
       var stream = new _stream.Transform(Object.assign({}, {
         transform: function transform(data, enc, next) {

@@ -40,27 +40,32 @@ var readerTests = function readerTests(inputs) {
       });
     }); // end split tests
 
-    xdescribe('parallel', function () {
+    describe('parallel', function () {
 
-      it('should break a chunk into smaller chunks', function (done) {
+      it('should limit the number of concurrent data events', function (done) {
         var _inputs2 = inputs();
 
-        var stream = _inputs2.stream;
-        var flud = new _2.default(stream);
+        var manyObjects = _inputs2.manyObjects;
+        var flud = new _2.default(manyObjects);
         var before = [];
         var after = [];
 
         flud.tap(function (data) {
           return before.push(data);
-        }).split().parallel(4).tap(function (data) {
+        }).parallel(4, function (data, next) {
+          setTimeout(function () {
+            console.log('test next', data);
+            next(null, data);
+          }, 25);
+        }).tap(function (data) {
           return after.push(data);
         }).stream.on('end', function () {
-          before.length.should.eql(1);
-          after.length.should.eql(4);
+          console.log('test stream.end!');
+          before.length.should.eql(after.length);
           done();
         });
       });
-    }); // end split tests
+    }); // end parallel tests
 
     describe('map', function () {
 

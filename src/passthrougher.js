@@ -77,14 +77,11 @@ const passthrougher = () => ({
   },
 
   done(cb) {
-    let { objectMode } = this,
-      stream = new PassThrough({ objectMode });
-
     makeSure(cb).is.a.Function;
 
-    stream.on('finish', () => cb());
+    this.stream.on('end', () => cb());
 
-    return this.pipe(stream);
+    return this;
   }
 
 });

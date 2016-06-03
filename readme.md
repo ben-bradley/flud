@@ -265,7 +265,7 @@ all done!
 
 ### `done(callback)`
 
-The `.done()` method simply adds a listener to the stream `finish` event.
+The `.done()` method simply adds a listener to the stream `end` event.
 
 #### Arguments
 
@@ -570,6 +570,40 @@ all done!
  */
 ```
 
+### `parallel(n, callback)`
+
+The `.parallel()` method will `pause()` and `resume()` the flud so that there are only `< n` `callback` functions executing in parallel.  The `next` argument in the `callback` function allows for asynchronous operations!
+
+#### Arguments
+
+- `n` = a `Number` value that is the maximum number of concurrent `callback`s to run.
+- `callback` = a `Function` with the signature `(data, next)`.
+  - `data` = a chunk emitted by the stream
+  - `next` = a `Function` with the signature `(error, data)` - __This `next` is called asynchronously!___
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+// an array of 50 objects: [{ a: i }, { a: i+1 }, { a: i+2 }, ... ]
+const objects = Array.from(Array(50), (v, i) => ({ a: i }));
+
+const flud = new Flud(objects);
+
+flud
+  .parallel(5, (data, next) => {
+    // do some operation to get a result
+    setTimeout(() => {
+      data.result = 'foo';
+      next(null, data);
+    }, 100);
+  })
+  .done(() => console.log('all done!'));
+```
+
 
 ## Promises
 
@@ -600,13 +634,9 @@ all done!
 ```
 
 
-## ToDo
-
-- Add a `parallel()` limiter
-
-
 ## Versions
 
+- 2.0.0 - Added `parallel`, changed `done()` to listen to the stream `end` event
 - 1.2.1 - `npm publish` on master
 - 1.2.0 - `new Flud(objectModeStream)` now works
 - 1.1.0 - added `.join()`, cleaned up readme.md

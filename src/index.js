@@ -10,11 +10,11 @@ import returner from './returner';
 const { isStream, isArray, isString } = makeSure;
 
 const piper = () => ({
-  pipe(stream) {
+  pipe(stream, options) {
     if (isStream(stream) === false)
       throw new Error('Cannot pipe a non-stream');
 
-    this.stream = this.stream.pipe(stream);
+    this.stream = this.stream.pipe(stream, options);
 
     return this;
   }

@@ -16,6 +16,10 @@ var filepath = __dirname + '/../../data/sample.csv';
 
 var objects = [{ a: '1' }, { a: '2' }, { a: '3' }, { a: '4' }];
 
+var manyObjects = Array.from(new Array(50), function (v, i) {
+  return { a: i };
+});
+
 var objStream = new _stream.Readable({
   objectMode: true,
   read: function read() {}
@@ -24,6 +28,7 @@ var objStream = new _stream.Readable({
 var inputs = function inputs() {
   return {
     objects: objects,
+    manyObjects: manyObjects,
     filepath: filepath,
     stream: _fs2.default.createReadStream(filepath),
     objStream: function objStream() {

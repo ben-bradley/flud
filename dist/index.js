@@ -33,10 +33,10 @@ var isString = _makeSure2.default.isString;
 
 var piper = function piper() {
   return {
-    pipe: function pipe(stream) {
+    pipe: function pipe(stream, options) {
       if (isStream(stream) === false) throw new Error('Cannot pipe a non-stream');
 
-      this.stream = this.stream.pipe(stream);
+      this.stream = this.stream.pipe(stream, options);
 
       return this;
     }

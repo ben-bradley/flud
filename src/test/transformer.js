@@ -28,27 +28,31 @@ const readerTests = (inputs) => {
 
     }); // end split tests
 
-    xdescribe('parallel', () => {
+    describe('parallel', () => {
 
-      it('should break a chunk into smaller chunks', (done) => {
-        let { stream } = inputs(),
-          flud = new Flud(stream),
+      it('should limit the number of concurrent data events', (done) => {
+        let { manyObjects } = inputs(),
+          flud = new Flud(manyObjects),
           before = [],
           after = [];
 
         flud
           .tap((data) => before.push(data))
-          .split()
-          .parallel(4)
+          .parallel(4, (data, next) => {
+            setTimeout(() => {
+              console.log('test next', data);
+              next(null, data);
+            }, 25);
+          })
           .tap((data) => after.push(data))
           .stream.on('end', () => {
-            (before.length).should.eql(1);
-            (after.length).should.eql(4);
+            console.log('test stream.end!');
+            (before.length).should.eql(after.length);
             done();
           });
       });
 
-    }); // end split tests
+    }); // end parallel tests
 
     describe('map', () => {
 

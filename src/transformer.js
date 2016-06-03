@@ -110,6 +110,53 @@ const transformer = () => ({
     return this.pipe(stream);
   },
 
+  parallel(n, cb) {
+    let active = 0,
+      paused = false,
+      allDone = false,
+      { stream, objectMode } = this;
+
+    makeSure(n).is.a.Number;
+    makeSure(cb).is.a.Function;
+
+    let parallel = new Transform({
+      transform(data, enc, next) { next(); },
+      objectMode
+    });
+
+    stream.on('data', (data) => {
+      active += 1;
+      console.log('stream.data!', active, data);
+
+      if (active >= n && !paused) {
+        paused = true;
+        stream.pause();
+        console.log('stream paused!', active, data);
+      }
+
+      cb(data, (err, data) => {
+        active -= 1;
+        console.log('parallel tick', active, data);
+
+        if (active < n && paused) {
+          paused = false;
+          stream.resume();
+          console.log('stream resumed!', active, data);
+        }
+
+        parallel.push(data);
+
+        if (active === 0 && allDone)
+          parallel.push(null);
+      });
+    });
+
+    stream.on('end', () => allDone = true);
+
+    this.stream = parallel;
+    return this;
+  },
+
   flush(flush, options) {
     let stream = new Transform(Object.assign({}, {
       transform(data, enc, next) {

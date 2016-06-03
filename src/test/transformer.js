@@ -28,6 +28,28 @@ const readerTests = (inputs) => {
 
     }); // end split tests
 
+    xdescribe('parallel', () => {
+
+      it('should break a chunk into smaller chunks', (done) => {
+        let { stream } = inputs(),
+          flud = new Flud(stream),
+          before = [],
+          after = [];
+
+        flud
+          .tap((data) => before.push(data))
+          .split()
+          .parallel(4)
+          .tap((data) => after.push(data))
+          .stream.on('end', () => {
+            (before.length).should.eql(1);
+            (after.length).should.eql(4);
+            done();
+          });
+      });
+
+    }); // end split tests
+
     describe('map', () => {
 
       it('should modify the data in an object stream', (done) => {
@@ -37,12 +59,12 @@ const readerTests = (inputs) => {
         flud
           .map((data) => {
             (data).should.be.an.Object.with.property('a');
-            data.b = new Date();
+            data.b = 1;
             return data;
           })
           .tap((data) => {
             (data).should.be.an.Object.with.property('b');
-            (data.b).should.be.a.Date;
+            (data.b).should.be.a.Number;
           })
           .stream.on('end', () => done());
       });
@@ -180,14 +202,14 @@ const readerTests = (inputs) => {
 
         flud
           .transform((data, enc, next) => {
-            data.b = new Date();
+            data.b = 1;
             next(null, data);
           }, { objectMode: true })
           .tap((data) => datas.push(data))
           .done(() => {
             datas.map((d) => {
               (d).should.be.an.Object.with.property('b');
-              (d.b).should.be.a.Date;
+              (d.b).should.be.a.Number;
             });
             done();
           });

@@ -40,30 +40,52 @@ var readerTests = function readerTests(inputs) {
       });
     }); // end split tests
 
+    xdescribe('parallel', function () {
+
+      it('should break a chunk into smaller chunks', function (done) {
+        var _inputs2 = inputs();
+
+        var stream = _inputs2.stream;
+        var flud = new _2.default(stream);
+        var before = [];
+        var after = [];
+
+        flud.tap(function (data) {
+          return before.push(data);
+        }).split().parallel(4).tap(function (data) {
+          return after.push(data);
+        }).stream.on('end', function () {
+          before.length.should.eql(1);
+          after.length.should.eql(4);
+          done();
+        });
+      });
+    }); // end split tests
+
     describe('map', function () {
 
       it('should modify the data in an object stream', function (done) {
-        var _inputs2 = inputs();
+        var _inputs3 = inputs();
 
-        var objects = _inputs2.objects;
+        var objects = _inputs3.objects;
         var flud = new _2.default(objects);
 
         flud.map(function (data) {
           data.should.be.an.Object.with.property('a');
-          data.b = new Date();
+          data.b = 1;
           return data;
         }).tap(function (data) {
           data.should.be.an.Object.with.property('b');
-          data.b.should.be.a.Date;
+          data.b.should.be.a.Number;
         }).stream.on('end', function () {
           return done();
         });
       });
 
       it('should modify the data in a stream', function (done) {
-        var _inputs3 = inputs();
+        var _inputs4 = inputs();
 
-        var stream = _inputs3.stream;
+        var stream = _inputs4.stream;
         var flud = new _2.default(stream);
 
         flud.split().map(function (data) {
@@ -81,9 +103,9 @@ var readerTests = function readerTests(inputs) {
     describe('filter', function () {
 
       it('should filter the data from an object stream', function (done) {
-        var _inputs4 = inputs();
+        var _inputs5 = inputs();
 
-        var objects = _inputs4.objects;
+        var objects = _inputs5.objects;
         var flud = new _2.default(objects);
         var exists = false;
 
@@ -101,9 +123,9 @@ var readerTests = function readerTests(inputs) {
       });
 
       it('should filter the data from a stream', function (done) {
-        var _inputs5 = inputs();
+        var _inputs6 = inputs();
 
-        var stream = _inputs5.stream;
+        var stream = _inputs6.stream;
         var flud = new _2.default(stream);
         var exists = false;
 
@@ -124,9 +146,9 @@ var readerTests = function readerTests(inputs) {
     describe('append', function () {
 
       it('should create one more data event', function (done) {
-        var _inputs6 = inputs();
+        var _inputs7 = inputs();
 
-        var objects = _inputs6.objects;
+        var objects = _inputs7.objects;
         var flud = new _2.default(objects);
 
         flud.append({ a: 0 }).toArray().then(function (appended) {
@@ -143,9 +165,9 @@ var readerTests = function readerTests(inputs) {
     describe('drop', function () {
 
       it('should drop the first n chunks', function (done) {
-        var _inputs7 = inputs();
+        var _inputs8 = inputs();
 
-        var objects = _inputs7.objects;
+        var objects = _inputs8.objects;
         var flud = new _2.default(objects);
         var counter = 0;
 
@@ -161,9 +183,9 @@ var readerTests = function readerTests(inputs) {
     describe('slice', function () {
 
       it('should slice chunks from the stream', function (done) {
-        var _inputs8 = inputs();
+        var _inputs9 = inputs();
 
-        var objects = _inputs8.objects;
+        var objects = _inputs9.objects;
         var flud = new _2.default(objects);
         var datas = [];
 
@@ -181,21 +203,21 @@ var readerTests = function readerTests(inputs) {
     describe('transform', function () {
 
       it('should provide a hook for the _transform method', function (done) {
-        var _inputs9 = inputs();
+        var _inputs10 = inputs();
 
-        var objects = _inputs9.objects;
+        var objects = _inputs10.objects;
         var flud = new _2.default(objects);
         var datas = [];
 
         flud.transform(function (data, enc, next) {
-          data.b = new Date();
+          data.b = 1;
           next(null, data);
         }, { objectMode: true }).tap(function (data) {
           return datas.push(data);
         }).done(function () {
           datas.map(function (d) {
             d.should.be.an.Object.with.property('b');
-            d.b.should.be.a.Date;
+            d.b.should.be.a.Number;
           });
           done();
         });
@@ -205,9 +227,9 @@ var readerTests = function readerTests(inputs) {
     describe('buffer', function () {
 
       it('should buffer object data until flush', function (done) {
-        var _inputs10 = inputs();
+        var _inputs11 = inputs();
 
-        var objects = _inputs10.objects;
+        var objects = _inputs11.objects;
         var flud = new _2.default(objects);
         var before = [];
         var after = [];
@@ -224,9 +246,9 @@ var readerTests = function readerTests(inputs) {
       });
 
       it('should buffer string data until flush', function (done) {
-        var _inputs11 = inputs();
+        var _inputs12 = inputs();
 
-        var filepath = _inputs11.filepath;
+        var filepath = _inputs12.filepath;
         var flud = new _2.default(filepath);
         var orig = '';
         var before = [];

@@ -27,7 +27,7 @@ const readerTests = (inputs) => {
         });
     });
 
-    it('objects', (done) => {
+    it('array of Objects', (done) => {
       let { objects } = inputs(),
         flud = new Flud(objects);
 
@@ -39,6 +39,30 @@ const readerTests = (inputs) => {
         flud = new Flud(filepath);
 
       flud.tap(() => {}).stream.on('end', () => done());
+    });
+
+    it('arrays of Strings', (done) => {
+      let { stringArray } = inputs(),
+        flud = new Flud(stringArray),
+        before = [],
+        after = [];
+
+      flud
+        .tap((data) => before.push(data))
+        .join()
+        .tap((data) => after.push(data))
+        .done(() => {
+          (before).should.be.an.Array.with.length(stringArray.length);
+          (after).should.be.an.Array.with.length(1);
+          done();
+        });
+    });
+
+    it('arrays of Mixed', () => {
+      (() => {
+        let { mixedArray } = inputs(),
+          flud = new Flud(mixedArray);
+      }).should.throw('Flud cannot process mixed arrays.');
     });
 
   }); // end reader tests

@@ -39,7 +39,7 @@ const Flud = (stream) => {
   if (isStream(stream))
     flud.stream(stream);
   else if (isArray(stream))
-    flud.objects(stream);
+    flud.array(stream);
   else if (isString(stream))
     flud.file(stream);
 

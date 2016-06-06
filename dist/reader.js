@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var _fs = require('fs');
 
 var _stream2 = require('stream');
@@ -15,6 +13,11 @@ var _makeSure = require('make-sure');
 var _makeSure2 = _interopRequireDefault(_makeSure);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isObject = _makeSure2.default.isObject;
+var isString = _makeSure2.default.isString;
+var isUndefined = _makeSure2.default.isUndefined;
+
 
 var reader = function reader() {
   return {
@@ -36,17 +39,26 @@ var reader = function reader() {
       return this;
     },
     objects: function objects(array) {
-      (0, _makeSure2.default)(array).is.an.Array;
+      // this got rolled up into this.array()
+      return this.array(array);
+    },
+    array: function array(_array) {
+      (0, _makeSure2.default)(_array).is.an.Array;
 
-      var ary = array.slice(0);
+      var ary = _array.slice(0);
 
-      this.objectMode = true;
+      var objectMode = !!ary.filter(isObject).length,
+          stringMode = !!ary.filter(isString).length;
+
+      if (objectMode && stringMode) throw new Error('Flud cannot process mixed arrays.');
+
+      this.objectMode = objectMode;
       this.stream = new _stream2.Readable({
-        objectMode: true,
+        objectMode: objectMode,
         read: function read() {
           var item = ary.shift();
 
-          if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) === 'object') this.push(item);else if (typeof item === 'undefined') this.push(null);
+          if (isUndefined(item)) this.push(null);else if (isString(item) || isObject(item)) this.push(item);
         }
       });
 

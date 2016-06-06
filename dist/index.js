@@ -54,7 +54,7 @@ var pusher = function pusher() {
 var Flud = function Flud(stream) {
   var flud = Object.assign({}, piper(), pusher(), (0, _reader2.default)(), (0, _transformer2.default)(), (0, _passthrougher2.default)(), (0, _returner2.default)());
 
-  if (isStream(stream)) flud.stream(stream);else if (isArray(stream)) flud.objects(stream);else if (isString(stream)) flud.file(stream);
+  if (isStream(stream)) flud.stream(stream);else if (isArray(stream)) flud.array(stream);else if (isString(stream)) flud.file(stream);
 
   return flud;
 };

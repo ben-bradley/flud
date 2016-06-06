@@ -4,6 +4,8 @@ import { createReadStream } from 'fs';
 import { Readable } from 'stream';
 import makeSure from 'make-sure';
 
+const { isObject, isString, isUndefined } = makeSure;
+
 const reader = () => ({
 
   stream(stream) {
@@ -13,7 +15,7 @@ const reader = () => ({
 
     if (stream._readableState && stream._readableState.objectMode)
       this.objectMode = true;
-    
+
     return this;
   },
 
@@ -25,20 +27,31 @@ const reader = () => ({
   },
 
   objects(array) {
+    // this got rolled up into this.array()
+    return this.array(array);
+  },
+
+  array(array) {
     makeSure(array).is.an.Array;
 
     let ary = array.slice(0);
 
-    this.objectMode = true;
+    let objectMode = !!ary.filter(isObject).length,
+      stringMode = !!ary.filter(isString).length;
+
+    if (objectMode && stringMode)
+      throw new Error('Flud cannot process mixed arrays.');
+
+    this.objectMode = objectMode;
     this.stream = new Readable({
-      objectMode: true,
+      objectMode,
       read() {
         let item = ary.shift();
 
-        if (typeof item === 'object')
-          this.push(item);
-        else if (typeof item === 'undefined')
+        if (isUndefined(item))
           this.push(null);
+        else if (isString(item) || isObject(item))
+          this.push(item);
       }
     });
 

@@ -132,6 +132,47 @@ flud
     .on('finish', () => console.log('all done!'));
 ```
 
+### `array(array)`
+
+Alternatively, you can simply provide your array and let Flud determine whether you need to use `objectMode` or not.  If your array contains mixed types, Flud will bail out and call you names.
+
+#### Arguments
+
+- `array` = an array of `Object`s __or `String`s__
+
+#### Example
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objectArray = [{ a: 1 }, { a: 2 }, { a: 3 }];
+const stringArray = [ 'a', 'b', 'c' ];
+
+const flud = new Flud(stringArray);
+
+flud
+  .tap((data) => console.log('data:', data))
+  .done(() => console.log('all done!'));
+```
+
+```javascript
+'use strict';
+
+import Flud from 'flud';
+
+const objectArray = [{ a: 1 }, { a: 2 }, { a: 3 }];
+const stringArray = [ 'a', 'b', 'c' ];
+
+const flud = new Flud();
+
+flud
+  .array(stringArray)
+  .tap((data) => console.log('data:', data))
+  .done(() => console.log('all done!'));
+```
+
 
 ## PassThrough
 
@@ -636,6 +677,7 @@ all done!
 
 ## Versions
 
+- 2.1.0 - Added `array()` reader to process arrays of strings or objects
 - 2.0.0 - Added `parallel`, changed `done()` to listen to the stream `end` event
 - 1.2.1 - `npm publish` on master
 - 1.2.0 - `new Flud(objectModeStream)` now works

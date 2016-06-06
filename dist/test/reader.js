@@ -45,7 +45,7 @@ var readerTests = function readerTests(inputs) {
       });
     });
 
-    it('objects', function (done) {
+    it('array of Objects', function (done) {
       var _inputs3 = inputs();
 
       var objects = _inputs3.objects;
@@ -65,6 +65,34 @@ var readerTests = function readerTests(inputs) {
       flud.tap(function () {}).stream.on('end', function () {
         return done();
       });
+    });
+
+    it('arrays of Strings', function (done) {
+      var _inputs5 = inputs();
+
+      var stringArray = _inputs5.stringArray;
+      var flud = new _2.default(stringArray);
+      var before = [];
+      var after = [];
+
+      flud.tap(function (data) {
+        return before.push(data);
+      }).join().tap(function (data) {
+        return after.push(data);
+      }).done(function () {
+        before.should.be.an.Array.with.length(stringArray.length);
+        after.should.be.an.Array.with.length(1);
+        done();
+      });
+    });
+
+    it('arrays of Mixed', function () {
+      (function () {
+        var _inputs6 = inputs();
+
+        var mixedArray = _inputs6.mixedArray;
+        var flud = new _2.default(mixedArray);
+      }).should.throw('Flud cannot process mixed arrays.');
     });
   }); // end reader tests
 };
